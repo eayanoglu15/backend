@@ -7,6 +7,8 @@ import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
 import com.example.fourtytwo.modules.users.request.NewUserRequest
 import com.example.fourtytwo.modules.users.request.ReviewUser
+import com.example.fourtytwo.modules.users.response.ReviewResponse
+import net.bytebuddy.implementation.bytecode.Throw
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -53,16 +55,25 @@ class UserService @Autowired constructor(
     }
 
     @Transactional
-    fun reviewUser(review: ReviewUser): Int {
-        if(!existsByUsername(review.username)) {
-            return 500
+    fun reviewUser(review: ReviewUser): ReviewResponse {
+        if(!existsByUsername(review.giverUsername) || !existsByUsername(review.receiverUsername)) {
+            throw RestException(
+                    "Exception.notFound",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    review.giverUsername
+            )
         }else{
-            var user = getUserByUsername(review.username)
-            user.point=(user.point+review.review)/(user.numberRevieved+1)
+            var user = getUserByUsername(review.receiverUsername)
+            user.point=(user.point*user.numberRevieved+review.review)/(user.numberRevieved+1)
+            var point=user.point
             user.numberRevieved=user.numberRevieved+1
             userRepository.save(user)
-            return 200
+            return ReviewResponse(
+                    updatedReviewPoint = point
+            )
         }
+
 
     }
 

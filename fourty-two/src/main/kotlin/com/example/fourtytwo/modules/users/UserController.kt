@@ -2,11 +2,13 @@ package com.example.fourtytwo.modules.users
 
 
 import com.example.fourtytwo.modules.shared.ApiResponse
+import com.example.fourtytwo.modules.shared.RestException
 import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
 import com.example.fourtytwo.modules.users.request.NewUserRequest
 import com.example.fourtytwo.modules.users.request.ReviewUser
+import com.example.fourtytwo.modules.users.response.ReviewResponse
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
@@ -46,15 +48,8 @@ class UserRestController(
 
     @PostMapping("/review")
     fun reviewUser(@RequestBody review: ReviewUser,
-                   locale: Locale): ResponseEntity<ApiResponse> {
-        if (userService.reviewUser(review) == 200) {
-            return ApiResponse.fromMessage(messageSource,
-                    locale,
-                    true,
-                    "General.successfulSave").asOkResponse()
-        } else {
-            return ApiResponse.fromMessage(messageSource, locale, false, "Auth.usernameInUse").asOkResponse()
-        }
+                   locale: Locale): ResponseEntity<ReviewResponse> {
+       return userService.reviewUser(review).asOkResponse()
     }
 
 }
