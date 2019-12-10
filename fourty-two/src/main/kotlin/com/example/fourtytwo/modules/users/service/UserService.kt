@@ -5,6 +5,7 @@ import com.example.fourtytwo.modules.shared.RestException
 import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
+import com.example.fourtytwo.modules.users.request.LoginRequest
 import com.example.fourtytwo.modules.users.request.NewUserRequest
 import com.example.fourtytwo.modules.users.request.ReviewUser
 import com.example.fourtytwo.modules.users.response.ReviewResponse
@@ -75,6 +76,14 @@ class UserService @Autowired constructor(
         }
 
 
+    }
+
+    fun login(login: LoginRequest):Boolean {
+        var user=getUserByUsername(login.username)
+        if(!user.password.equals(login.password)){
+            return false
+        }
+        return true
     }
 
 

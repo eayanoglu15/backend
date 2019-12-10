@@ -6,6 +6,7 @@ import com.example.fourtytwo.modules.shared.RestException
 import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
+import com.example.fourtytwo.modules.users.request.LoginRequest
 import com.example.fourtytwo.modules.users.request.NewUserRequest
 import com.example.fourtytwo.modules.users.request.ReviewUser
 import com.example.fourtytwo.modules.users.response.ReviewResponse
@@ -50,6 +51,20 @@ class UserRestController(
     fun reviewUser(@RequestBody review: ReviewUser,
                    locale: Locale): ResponseEntity<ReviewResponse> {
        return userService.reviewUser(review).asOkResponse()
+    }
+
+    @PostMapping("/login")
+    fun loginUser(@RequestBody login: LoginRequest,
+                  locale: Locale): ResponseEntity<ApiResponse> {
+        if(!userService.login(login)){
+            return ApiResponse.fromMessage(messageSource,
+                    locale,
+                    false,
+                    "Auth.passwordNotMatching")
+                    .asOkResponse()
+        }else
+        return ApiResponse.fromMessage(messageSource, locale, true, "General.successfulSave").asOkResponse()
+
     }
 
 }
