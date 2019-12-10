@@ -55,16 +55,16 @@ class UserRestController(
 
     @PostMapping("/login")
     fun loginUser(@RequestBody login: LoginRequest,
-                  locale: Locale): ResponseEntity<ApiResponse> {
+                  locale: Locale): ResponseEntity<User> {
         if(!userService.login(login)){
-            return ApiResponse.fromMessage(messageSource,
-                    locale,
-                    false,
-                    "Auth.passwordNotMatching")
-                    .asOkResponse()
+            throw  RestException(
+                    "Exception.notFound",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    login.password
+            )
         }else
-        return ApiResponse.fromMessage(messageSource, locale, true, "General.successfulSave").asOkResponse()
-
+        return userService.getUserByUsername(login.username).asOkResponse()
     }
 
 }
