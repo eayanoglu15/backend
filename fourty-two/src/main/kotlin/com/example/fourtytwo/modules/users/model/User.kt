@@ -2,6 +2,7 @@ package com.example.fourtytwo.modules.users.model
 
 import org.hibernate.annotations.NaturalId
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -12,6 +13,7 @@ import javax.persistence.UniqueConstraint
 import javax.validation.constraints.Email
 import javax.validation.constraints.NotBlank
 import javax.validation.constraints.Size
+import java.io.Serializable
 
 @Entity
 @Table(
@@ -19,7 +21,7 @@ import javax.validation.constraints.Size
     UniqueConstraint(columnNames = ["username"])
 ]
 )
-class User{
+class User : Serializable {
     @field:NotBlank
     @field:Size(max = 100)
     @field:Email
@@ -60,19 +62,19 @@ class User{
 
     var driver: Boolean? = null
 
-    @field:NotBlank
-    @field:Size(max = 40)
+
     var plaque: String?=null
 
-    @field:NotBlank
-    @field:Size(max = 40)
+
     var carModel: String?=null
+
+    var totalDistance: Double=0.0
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
     var id: Long? = null
 
-    var version: LocalDateTime? = null
+    var version: LocalDateTime? = LocalDateTime.now(ZoneId.of("UTC"))
 }
 
