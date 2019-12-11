@@ -8,6 +8,7 @@ import com.example.fourtytwo.modules.trip.request.DriverTripCheckRequest
 import com.example.fourtytwo.modules.trip.request.SendRequestRequest
 import com.example.fourtytwo.modules.trip.response.DriverRequestsPageRequest
 import com.example.fourtytwo.modules.trip.response.TripResponse
+import com.example.fourtytwo.modules.trip.response.VotePageResponse
 import com.example.fourtytwo.modules.trip.service.TripService
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
@@ -47,6 +48,12 @@ class TripController(
     fun getRequestsByDriver(@RequestBody driverTripCheck: DriverTripCheckRequest,
                 locale: Locale): ResponseEntity<DriverRequestsPageRequest> {
         return tripService.getDriversAllRequests(driverTripCheck).asOkResponse()
+    }
+
+    @PostMapping("driverVotePage")
+    fun getDriverVotePage(@RequestBody driverTripCheck: DriverTripCheckRequest,
+                            locale: Locale): ResponseEntity<VotePageResponse> {
+        return tripService.driverVotePage(driverTripCheck).asOkResponse()
     }
 
     @PostMapping("acceptRequest")

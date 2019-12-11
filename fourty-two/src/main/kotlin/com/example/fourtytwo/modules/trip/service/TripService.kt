@@ -14,6 +14,7 @@ import com.example.fourtytwo.modules.trip.request.SendRequestRequest
 import com.example.fourtytwo.modules.trip.response.DriverComingTripRequests
 import com.example.fourtytwo.modules.trip.response.DriverRequestsPageRequest
 import com.example.fourtytwo.modules.trip.response.TripResponse
+import com.example.fourtytwo.modules.trip.response.VotePageResponse
 import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
 import com.example.fourtytwo.modules.users.service.UserService
@@ -144,6 +145,38 @@ class TripService @Autowired constructor(
         tripRepository.save(trip)
     }
 
+    fun driverVotePage(driverUsername:DriverTripCheckRequest):VotePageResponse{
+        val driver= userService.getUserByUsername(driverUsername.driverUserName)
+        val now = LocalDateTime.now().minusHours(1).toInstant(ZoneOffset.UTC)
+        val trips = tripRepository.findAllByEndTimeLessThanAndDriverName(now,driver)
+        val tripVote = tripVoteRepository.findAllByTripRequestId_Trip(trips)
+
+        return VotePageResponse(
+                    votedTrip =tripVote.filter { it.voteGivenByDriver!=null }.map {
+                        DriverComingTripRequests(
+                                from = it.tripRequestId!!.trip!!.fromWhere,
+                                to = it.tripRequestId!!.trip!!.toWhere,
+                                startTime = it.tripRequestId!!.trip!!.startTime,
+                                endTime = it.tripRequestId!!.trip!!.endTime,
+                                id=it.id,
+                                hitchHikerUserName = it.tripRequestId!!.personRequested!!.username,
+                                rating = it.tripRequestId!!.personRequested!!.point
+                        )
+                    }.toList(),
+                nonVotedTrip = tripVote.filter { it.voteGivenByDriver==null }.map {
+                    DriverComingTripRequests(
+                            from = it.tripRequestId!!.trip!!.fromWhere,
+                            to = it.tripRequestId!!.trip!!.toWhere,
+                            startTime = it.tripRequestId!!.trip!!.startTime,
+                            endTime = it.tripRequestId!!.trip!!.endTime,
+                            id=it.id,
+                            hitchHikerUserName = it.tripRequestId!!.personRequested!!.username,
+                            rating = it.tripRequestId!!.personRequested!!.point
+                    )
+                }.toList(),
+                tripExist = !tripVote.isEmpty()
+            )
+    }
     @Transactional
     fun declineRequest(declineRequest: AcceptTripRequest){
         val tripRequests= tripRequestRepository.findOneById(declineRequest.tripRequestId!!)

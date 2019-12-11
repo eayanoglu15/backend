@@ -5,6 +5,6 @@ import java.util.*
 
 interface TripVoteRepository : JpaRepository<TripVote, Long> {
 
-
+    fun findAllByTripRequestId_Trip(tripList: List<Trip>): List<TripVote>
 
 }

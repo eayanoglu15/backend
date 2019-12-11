@@ -34,7 +34,8 @@ CREATE TABLE trip_vote(
                              ID SERIAL PRIMARY KEY NOT NULL,
                              version timestamp without time zone,
                              trip_request_id BIGINT,
-                             vote_given INT
+                             vote_given_by_driver INT,
+                             vote_given_by_hitchhiker INT
 );
 alter table public.trip_vote
     add constraint trip_vote_trip_request_id

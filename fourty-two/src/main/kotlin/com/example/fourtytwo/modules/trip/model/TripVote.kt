@@ -23,7 +23,10 @@ class TripVote{
     @field:JoinColumn(name = "trip_request_id",referencedColumnName = "id")
     var tripRequestId: TripRequest?=null
 
-    var voteGiven: Int?=null
+    var voteGivenByDriver: Int?=null
+
+    var voteGivenByHitchhiker: Int?=null
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
