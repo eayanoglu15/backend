@@ -7,14 +7,8 @@ import com.example.fourtytwo.modules.trip.model.TripRequest
 import com.example.fourtytwo.modules.trip.model.TripRequestRepository
 import com.example.fourtytwo.modules.trip.model.TripVote
 import com.example.fourtytwo.modules.trip.model.TripVoteRepository
-import com.example.fourtytwo.modules.trip.request.AcceptTripRequest
-import com.example.fourtytwo.modules.trip.request.CreateTripRequest
-import com.example.fourtytwo.modules.trip.request.DriverTripCheckRequest
-import com.example.fourtytwo.modules.trip.request.SendRequestRequest
-import com.example.fourtytwo.modules.trip.response.DriverComingTripRequests
-import com.example.fourtytwo.modules.trip.response.DriverRequestsPageRequest
-import com.example.fourtytwo.modules.trip.response.TripResponse
-import com.example.fourtytwo.modules.trip.response.VotePageResponse
+import com.example.fourtytwo.modules.trip.request.*
+import com.example.fourtytwo.modules.trip.response.*
 import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.model.UserRepository
 import com.example.fourtytwo.modules.users.service.UserService
@@ -52,7 +46,7 @@ class TripService @Autowired constructor(
         }.toList()
     }
 
-    fun getDriversAllRequests(driverTripCheckRequest: DriverTripCheckRequest): DriverRequestsPageRequest {
+    fun getDriversAllRequests(driverTripCheckRequest: DriverTripCheckRequest): DriverRequestsPageResponse {
         val now = LocalDateTime.now().toInstant(ZoneOffset.UTC)
         if (!userService.existsByUsername(driverTripCheckRequest.driverUserName)) {
             throw RestException(
@@ -64,22 +58,22 @@ class TripService @Autowired constructor(
         } else {
             var driver = userService.getUserByUsername(driverTripCheckRequest.driverUserName)
             if(!tripRepository.existsTripByDriverNameAndEndTimeGreaterThanEqual(driver,now)){
-                return DriverRequestsPageRequest(
+                return DriverRequestsPageResponse(
                         tripExist = false
                 )
 
             }else{
                 var trip =tripRepository.findFirstByDriverNameOrderByEndTimeDesc(driver)
                 if(trip==null){
-                    return DriverRequestsPageRequest(
+                    return DriverRequestsPageResponse(
                             tripExist = false
                     )
 
                 }else{
                     val allRequests= tripRequestRepository.findAllByTripAndShowableTrue(trip)
-                    return DriverRequestsPageRequest(
+                    return DriverRequestsPageResponse(
                             requests = allRequests.filter { !it.isAccepted }.map {
-                                DriverComingTripRequests(
+                                DriverComingTripResponse(
                                         from = it.trip!!.fromWhere,
                                         to = it.trip!!.toWhere,
                                         startTime = it.trip!!.startTime,
@@ -90,7 +84,7 @@ class TripService @Autowired constructor(
                                 )
                             }.toList(),
                             acceptedRequest = allRequests.filter { it.isAccepted }.map {
-                                DriverComingTripRequests(
+                                DriverComingTripResponse(
                                         from = it.trip!!.fromWhere,
                                         to = it.trip!!.toWhere,
                                         startTime = it.trip!!.startTime,
@@ -145,15 +139,17 @@ class TripService @Autowired constructor(
         tripRepository.save(trip)
     }
 
-    fun driverVotePage(driverUsername:DriverTripCheckRequest):VotePageResponse{
+    fun driverVotePage(driverUsername:DriverTripCheckRequest):VotePageResponseByDriver{
         val driver= userService.getUserByUsername(driverUsername.driverUserName)
         val now = LocalDateTime.now().minusHours(1).toInstant(ZoneOffset.UTC)
         val trips = tripRepository.findAllByEndTimeLessThanAndDriverName(now,driver)
-        val tripVote = tripVoteRepository.findAllByTripRequestId_Trip(trips)
-
-        return VotePageResponse(
+        val tripVote= mutableListOf<TripVote>()
+        trips.map {
+           tripVote.addAll(tripVoteRepository.findAllByTripRequestId_Trip(it))
+        }
+        return VotePageResponseByDriver(
                     votedTrip =tripVote.filter { it.voteGivenByDriver!=null }.map {
-                        DriverComingTripRequests(
+                        DriverComingTripResponse(
                                 from = it.tripRequestId!!.trip!!.fromWhere,
                                 to = it.tripRequestId!!.trip!!.toWhere,
                                 startTime = it.tripRequestId!!.trip!!.startTime,
@@ -164,7 +160,7 @@ class TripService @Autowired constructor(
                         )
                     }.toList(),
                 nonVotedTrip = tripVote.filter { it.voteGivenByDriver==null }.map {
-                    DriverComingTripRequests(
+                    DriverComingTripResponse(
                             from = it.tripRequestId!!.trip!!.fromWhere,
                             to = it.tripRequestId!!.trip!!.toWhere,
                             startTime = it.tripRequestId!!.trip!!.startTime,
@@ -177,6 +173,62 @@ class TripService @Autowired constructor(
                 tripExist = !tripVote.isEmpty()
             )
     }
+
+    fun hitchHikerVotePage(hitchhikerUsername:HitchhikerTripCheckRequest):VotePageResponseByHitchhiker{
+        val hitchHiker= userService.getUserByUsername(hitchhikerUsername.hitchhikerUserName)
+        val now = LocalDateTime.now().minusHours(1).toInstant(ZoneOffset.UTC)
+        val tripVote = tripVoteRepository.findAllByTripRequestId_PersonRequested(hitchHiker)
+
+        return VotePageResponseByHitchhiker(
+                votedTrip =tripVote.filter { it.voteGivenByHitchhiker!=null }.map {
+                    HitchhikerComingTripResponse(
+                            from = it.tripRequestId!!.trip!!.fromWhere,
+                            to = it.tripRequestId!!.trip!!.toWhere,
+                            startTime = it.tripRequestId!!.trip!!.startTime,
+                            endTime = it.tripRequestId!!.trip!!.endTime,
+                            id=it.id,
+                            driverUserName = it.tripRequestId!!.trip!!.driverName!!.username,
+                            rating = it.tripRequestId!!.trip!!.driverName!!.point
+
+
+                    )
+                }.toList(),
+                nonVotedTrip = tripVote.filter { it.voteGivenByDriver==null }.map {
+                    HitchhikerComingTripResponse(
+                            from = it.tripRequestId!!.trip!!.fromWhere,
+                            to = it.tripRequestId!!.trip!!.toWhere,
+                            startTime = it.tripRequestId!!.trip!!.startTime,
+                            endTime = it.tripRequestId!!.trip!!.endTime,
+                            id=it.id,
+                            driverUserName = it.tripRequestId!!.trip!!.driverName!!.username,
+                            rating = it.tripRequestId!!.trip!!.driverName!!.point
+                    )
+                }.toList(),
+                tripExist = !tripVote.isEmpty()
+        )
+    }
+
+    @Transactional
+    fun tripPointRequest(tripPointRequest: TripPointRequest){
+        val tripVote = tripVoteRepository.findOneById(tripPointRequest.tripId)
+        if(tripPointRequest.isDriver){
+            tripVote.voteGivenByDriver = tripPointRequest.point
+            tripVoteRepository.save(tripVote)
+            val hitchHiker = tripVote.tripRequestId!!.personRequested!!.username
+            userService.reviewUser(hitchHiker!!,tripPointRequest.point)
+        }
+        else{
+            tripVote.voteGivenByHitchhiker = tripPointRequest.point
+            tripVoteRepository.save(tripVote)
+            val driver = tripVote.tripRequestId!!.trip!!.driverName!!.username
+            userService.reviewUser(driver!!, tripPointRequest.point)
+        }
+
+
+    }
+
+
+
     @Transactional
     fun declineRequest(declineRequest: AcceptTripRequest){
         val tripRequests= tripRequestRepository.findOneById(declineRequest.tripRequestId!!)

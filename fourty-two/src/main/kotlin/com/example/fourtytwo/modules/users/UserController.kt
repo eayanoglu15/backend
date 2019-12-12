@@ -47,11 +47,11 @@ class UserRestController(
         userRepository.save(user)
     }
 
-    @PostMapping("/review")
+   /* @PostMapping("/review")
     fun reviewUser(@RequestBody review: ReviewUser,
                    locale: Locale): ResponseEntity<ReviewResponse> {
        return userService.reviewUser(review).asOkResponse()
-    }
+    }*/
 
     @PostMapping("/login")
     fun loginUser(@RequestBody login: LoginRequest,

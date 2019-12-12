@@ -54,9 +54,26 @@ class UserService @Autowired constructor(
     fun updateUser(user: User): User {
         return userRepository.save(user)
     }
+    @Transactional
+    fun reviewUser(username: String, point: Int) {
+        if(!existsByUsername(username)){
+            throw RestException(
+                    "Exception.notFound",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    username
+            )
+        }
+        else{
+            var user = getUserByUsername(username)
+            user.point=(user.point*user.numberRevieved+point)/(user.numberRevieved+1)
+            user.numberRevieved=user.numberRevieved+1
+            userRepository.save(user)
+        }
+    }
 
     @Transactional
-    fun reviewUser(review: ReviewUser): ReviewResponse {
+ /*   fun reviewUser1(review: ReviewUser): ReviewResponse {
         if(!existsByUsername(review.giverUsername) || !existsByUsername(review.receiverUsername)) {
             throw RestException(
                     "Exception.notFound",
@@ -76,7 +93,7 @@ class UserService @Autowired constructor(
         }
 
 
-    }
+    }*/
 
     fun login(login: LoginRequest):Boolean {
         var user=getUserByUsername(login.username)

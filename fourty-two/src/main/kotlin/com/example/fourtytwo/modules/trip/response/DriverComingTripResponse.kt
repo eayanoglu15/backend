@@ -2,7 +2,7 @@ package com.example.fourtytwo.modules.trip.response
 
 import java.time.Instant
 
-data class DriverComingTripRequests(
+data class DriverComingTripResponse(
 
         var from: String? = null,
 

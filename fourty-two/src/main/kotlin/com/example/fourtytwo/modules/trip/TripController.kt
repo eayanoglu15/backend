@@ -2,13 +2,11 @@ package com.example.fourtytwo.modules.trip
 
 import com.example.fourtytwo.modules.shared.ApiResponse
 import com.example.fourtytwo.modules.shared.asOkResponse
-import com.example.fourtytwo.modules.trip.request.AcceptTripRequest
-import com.example.fourtytwo.modules.trip.request.CreateTripRequest
-import com.example.fourtytwo.modules.trip.request.DriverTripCheckRequest
-import com.example.fourtytwo.modules.trip.request.SendRequestRequest
-import com.example.fourtytwo.modules.trip.response.DriverRequestsPageRequest
+import com.example.fourtytwo.modules.trip.request.*
+import com.example.fourtytwo.modules.trip.response.DriverRequestsPageResponse
 import com.example.fourtytwo.modules.trip.response.TripResponse
-import com.example.fourtytwo.modules.trip.response.VotePageResponse
+import com.example.fourtytwo.modules.trip.response.VotePageResponseByDriver
+import com.example.fourtytwo.modules.trip.response.VotePageResponseByHitchhiker
 import com.example.fourtytwo.modules.trip.service.TripService
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
@@ -46,14 +44,27 @@ class TripController(
 
     @PostMapping("getAllRequestsByDriver")
     fun getRequestsByDriver(@RequestBody driverTripCheck: DriverTripCheckRequest,
-                locale: Locale): ResponseEntity<DriverRequestsPageRequest> {
+                locale: Locale): ResponseEntity<DriverRequestsPageResponse> {
         return tripService.getDriversAllRequests(driverTripCheck).asOkResponse()
     }
 
     @PostMapping("driverVotePage")
     fun getDriverVotePage(@RequestBody driverTripCheck: DriverTripCheckRequest,
-                            locale: Locale): ResponseEntity<VotePageResponse> {
+                            locale: Locale): ResponseEntity<VotePageResponseByDriver> {
         return tripService.driverVotePage(driverTripCheck).asOkResponse()
+    }
+
+    @PostMapping("hitchhikerVotePage")
+    fun getHitchhikerVotePage(@RequestBody hitchhikerTripCheck: HitchhikerTripCheckRequest,
+                              locale: Locale): ResponseEntity<VotePageResponseByHitchhiker> {
+        return tripService.hitchHikerVotePage(hitchhikerTripCheck).asOkResponse()
+    }
+
+    @PostMapping("tripPointRequest")
+    fun tripPointRequest(@RequestBody tripPointRequest: TripPointRequest,
+                      locale: Locale): ResponseEntity<ApiResponse> {
+        tripService.tripPointRequest(tripPointRequest)
+        return ApiResponse.fromMessage(messageSource, locale, true, "General.successfulSave").asOkResponse()
     }
 
     @PostMapping("acceptRequest")

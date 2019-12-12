@@ -14,4 +14,5 @@ interface TripRepository : JpaRepository<Trip, Long> {
 
   fun findAllByEndTimeLessThanAndDriverName(endTime: Instant,driverName: User): List<Trip>
 
+
 }
