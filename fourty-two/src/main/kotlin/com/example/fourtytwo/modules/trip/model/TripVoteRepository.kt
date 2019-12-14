@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface TripVoteRepository : JpaRepository<TripVote, Long> {
-     fun findOneById(id: Long): TripVote
+    fun findOneById(id: Long): TripVote
     fun findAllByTripRequestId_Trip(trip: Trip): List<TripVote>
     fun findAllByTripRequestId_PersonRequested(hitchHiker: User): List<TripVote>
 }

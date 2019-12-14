@@ -9,7 +9,12 @@ import java.util.*
 interface TripRequestRepository : JpaRepository<TripRequest, Long> {
 
     fun findAllByTripAndShowableTrue(trip: Trip): List<TripRequest>
-     fun findOneById(tripRequestId: Long): TripRequest?
+    fun findOneById(tripRequestId: Long): TripRequest?
+
+    fun findAllByPersonRequested(hitchHiker: User): List<TripRequest>
+
+
+
 
 
 }

@@ -12,7 +12,12 @@ interface TripRepository : JpaRepository<Trip, Long> {
 
   fun existsTripByDriverNameAndEndTimeGreaterThanEqual(driverName:User,endTime: Instant): Boolean
 
+
+
   fun findAllByEndTimeLessThanAndDriverName(endTime: Instant,driverName: User): List<Trip>
+
+
+
 
 
 }

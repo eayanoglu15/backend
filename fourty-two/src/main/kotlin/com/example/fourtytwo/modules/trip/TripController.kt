@@ -3,10 +3,7 @@ package com.example.fourtytwo.modules.trip
 import com.example.fourtytwo.modules.shared.ApiResponse
 import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.trip.request.*
-import com.example.fourtytwo.modules.trip.response.DriverRequestsPageResponse
-import com.example.fourtytwo.modules.trip.response.TripResponse
-import com.example.fourtytwo.modules.trip.response.VotePageResponseByDriver
-import com.example.fourtytwo.modules.trip.response.VotePageResponseByHitchhiker
+import com.example.fourtytwo.modules.trip.response.*
 import com.example.fourtytwo.modules.trip.service.TripService
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
@@ -46,6 +43,12 @@ class TripController(
     fun getRequestsByDriver(@RequestBody driverTripCheck: DriverTripCheckRequest,
                 locale: Locale): ResponseEntity<DriverRequestsPageResponse> {
         return tripService.getDriversAllRequests(driverTripCheck).asOkResponse()
+    }
+
+    @PostMapping("getAllRequestsByHitchhiker")
+    fun getRequestsByHitchhiker(@RequestBody hitchhikerTripCheck: HitchhikerTripCheckRequest,
+                            locale: Locale): ResponseEntity<HitchhikerRequestsPageResponse> {
+        return tripService.getHitchhikersAllRequests(hitchhikerTripCheck).asOkResponse()
     }
 
     @PostMapping("driverVotePage")
