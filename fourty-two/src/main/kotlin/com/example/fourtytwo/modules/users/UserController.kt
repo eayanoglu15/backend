@@ -42,10 +42,16 @@ class UserRestController(
     }
 
     @PostMapping("updateUser")
+    fun updateUser(@RequestBody user: User,
+                locale: Locale): ResponseEntity<User> {
+            return userService.updateUser(user).asOkResponse()
+    }
+
+/*    @PostMapping("updateUser")
     @ResponseStatus(HttpStatus.OK)
     fun updateUser(user: User) {
         userRepository.save(user)
-    }
+    }*/
 
    /* @PostMapping("/review")
     fun reviewUser(@RequestBody review: ReviewUser,

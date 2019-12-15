@@ -50,10 +50,43 @@ class UserService @Autowired constructor(
 
 
 
-    @Transactional
+ /*   @Transactional
     fun updateUser(user: User): User {
         return userRepository.save(user)
+    }*/
+
+
+    @Transactional
+    fun updateUser(user: User): User {
+        if(!existsByUsername(user.username!!)){
+            throw RestException(
+                    "Exception.notFound",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    user.username!!
+            )
+        }
+        else{
+            var oldUser = getUserByUsername(user.username!!)
+
+                oldUser.username = user.username
+                oldUser.firstName = user.firstName
+                oldUser.surname = user.surname
+                oldUser.phone = user.phone
+                oldUser.email = user.email
+                oldUser.password = user.password
+                oldUser.age = user.age
+                oldUser.sex = user.sex
+            if(oldUser.driver!!){
+                oldUser.carModel = user.carModel
+                oldUser.plaque = user.plaque
+            }
+
+            return userRepository.save(user)
+        }
     }
+
+
     @Transactional
     fun reviewUser(username: String, point: Int) {
         if(!existsByUsername(username)){
