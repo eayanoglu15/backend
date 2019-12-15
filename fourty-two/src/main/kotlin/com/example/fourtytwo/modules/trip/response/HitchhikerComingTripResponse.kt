@@ -17,5 +17,9 @@ data class HitchhikerComingTripResponse(
 
         var driverUserName: String? = null,
 
-        var rating: Double = 0.0
+        var rating: Double = 0.0,
+
+        var carModel: String? = null,
+
+        var showable: Boolean = true
 )

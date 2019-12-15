@@ -5,17 +5,12 @@ import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.trip.request.*
 import com.example.fourtytwo.modules.trip.response.*
 import com.example.fourtytwo.modules.trip.service.TripService
+import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 
@@ -31,6 +26,19 @@ class TripController(
     fun getAllTrips(): ResponseEntity<List<TripResponse>> {
         return tripService.getAllAvailableTrips().asOkResponse()
     }
+
+    @GetMapping("getFromToLocations")
+    @ResponseStatus(HttpStatus.OK)
+    fun getFromToLocations(): ResponseEntity<TripFromToResponse> {
+        return tripService.getFromAndToList().asOkResponse()
+    }
+
+    @GetMapping("getCarModel")
+    @ResponseStatus(HttpStatus.OK)
+    fun getCarModels(): ResponseEntity<CarModelResponse> {
+        return tripService.getCarModel().asOkResponse()
+    }
+
 
     @PutMapping("createTrip")
     fun createTrip(@RequestBody createTripRequest: CreateTripRequest,

@@ -28,6 +28,7 @@ class TripService @Autowired constructor(
         private val tripRequestRepository: TripRequestRepository,
         private val userService: UserService
 
+
 ) {
     fun getAllAvailableTrips(): List<TripResponse> {
         val now = LocalDateTime.now().toInstant(ZoneOffset.UTC)
@@ -38,13 +39,25 @@ class TripService @Autowired constructor(
                     startTime = trip.startTime,
                     endTime = trip.endTime,
                     availableSeatNumber = trip.availableSeatNumber,
-                    id = trip.id,
-                    driverUserName = trip.driverName!!.username,
-                    carModel = trip.driverName!!.carModel,
-                    rating = trip.driverName!!.point
+                    id = trip.id
             )
         }.toList()
     }
+
+    fun getFromAndToList(): TripFromToResponse {
+        return TripFromToResponse(
+        )
+    }
+
+    fun getCarModel(): CarModelResponse {
+        return CarModelResponse(
+        )
+    }
+
+
+
+
+
 
     fun getDriversAllRequests(driverTripCheckRequest: DriverTripCheckRequest): DriverRequestsPageResponse {
         val now = LocalDateTime.now().toInstant(ZoneOffset.UTC)
@@ -114,7 +127,11 @@ class TripService @Autowired constructor(
                 var hitchhiker = userService.getUserByUsername(hitchhikerTripCheckRequest.hitchhikerUserName)
 
                 var allRequests = tripRequestRepository.findAllByPersonRequested(hitchhiker)
-
+            for (trip in allRequests) {
+                if(trip.trip!!.endTime !!< LocalDateTime.now().toInstant(ZoneOffset.UTC)){
+                    trip.showable = false
+                }
+            }
                             return HitchhikerRequestsPageResponse(
                             waitingRequests = allRequests.filter { !it.isAccepted && it.showable}.map {
                                 HitchhikerComingTripResponse(
@@ -124,7 +141,10 @@ class TripService @Autowired constructor(
                                         endTime = it.trip!!.endTime,
                                         id = it.id,
                                         driverUserName = it.trip!!.driverName!!.username,
-                                        rating = it.trip!!.driverName!!.point
+                                        rating = it.trip!!.driverName!!.point,
+                                        carModel = it.trip!!.driverName!!.carModel,
+                                        showable = it.showable
+
                                 )
                             }.toList(),
                             acceptedRequests = allRequests.filter { it.isAccepted }.map {
@@ -135,7 +155,10 @@ class TripService @Autowired constructor(
                                         endTime = it.trip!!.endTime,
                                         id = it.id,
                                         driverUserName = it.trip!!.driverName!!.username,
-                                        rating = it.trip!!.driverName!!.point
+                                        rating = it.trip!!.driverName!!.point,
+                                        carModel = it.trip!!.driverName!!.carModel,
+                                        showable = it.showable
+
                                 )
                             }.toList(),
                             rejectedRequests = allRequests.filter { !it.isAccepted && !it.showable}.map {
@@ -146,7 +169,9 @@ class TripService @Autowired constructor(
                                         endTime = it.trip!!.endTime,
                                         id = it.id,
                                         driverUserName = it.trip!!.driverName!!.username,
-                                        rating = it.trip!!.driverName!!.point
+                                        rating = it.trip!!.driverName!!.point,
+                                        carModel = it.trip!!.driverName!!.carModel,
+                                        showable = it.showable
                                 )
                             }.toList(),
                             tripExist = true
@@ -175,6 +200,14 @@ class TripService @Autowired constructor(
         if(tripRequests== null){
            throw RestException(
                     "Exception.notFound",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    acceptRequest.tripRequestId!!
+            )
+        }
+        if(tripRequests.trip!!.availableSeatNumber == 0){
+            throw RestException(
+                    "Exception.NoSeatsAvailable!",
                     HttpStatus.UNAUTHORIZED,
                     "User",
                     acceptRequest.tripRequestId!!
