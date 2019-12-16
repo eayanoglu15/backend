@@ -6,7 +6,7 @@ import java.time.Instant
 
 interface TripRepository : JpaRepository<Trip, Long> {
 
-  fun findAllByEndTimeGreaterThanAndAvailableSeatNumberGreaterThan(endTime:Instant,availableTime:Int = 0): List<Trip>
+  fun findAllByEndTimeGreaterThanAndAvailableSeatNumberGreaterThan(endTime:Instant,availableSeat:Int = 0): List<Trip>
 
   fun findFirstByDriverNameOrderByEndTimeDesc(driverName:User): Trip?
 

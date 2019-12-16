@@ -5,7 +5,6 @@ import com.example.fourtytwo.modules.shared.asOkResponse
 import com.example.fourtytwo.modules.trip.request.*
 import com.example.fourtytwo.modules.trip.response.*
 import com.example.fourtytwo.modules.trip.service.TripService
-import com.example.fourtytwo.modules.users.model.User
 import com.example.fourtytwo.modules.users.service.UserService
 import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
@@ -21,10 +20,11 @@ class TripController(
         val userService: UserService,
         val messageSource: MessageSource
 ) {
-    @GetMapping("getAllTrips")
+    @PostMapping("getAllTrips")
     @ResponseStatus(HttpStatus.OK)
-    fun getAllTrips(): ResponseEntity<List<TripResponse>> {
-        return tripService.getAllAvailableTrips().asOkResponse()
+    fun getAllTrips(@RequestBody hitchhikerTripCheck: HitchhikerTripCheckRequest,
+                    locale: Locale): ResponseEntity<List<TripResponse>> {
+        return tripService.getAllAvailableTrips(hitchhikerTripCheck).asOkResponse()
     }
 
     @GetMapping("getFromToLocations")

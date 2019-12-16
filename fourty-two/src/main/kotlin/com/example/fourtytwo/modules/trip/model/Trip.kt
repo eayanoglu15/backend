@@ -38,6 +38,8 @@ class Trip{
 
     var availableSeatNumber:Int=0
 
+    var distance :Double =0.0
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")

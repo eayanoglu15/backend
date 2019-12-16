@@ -30,22 +30,44 @@ class TripService @Autowired constructor(
 
 
 ) {
-    fun getAllAvailableTrips(): List<TripResponse> {
+    private val locationList=listOf("Hacıosman","Levent","Koç Batı","Beşiktaş","Kadıköy")
+    private val distanceMap: Map<String,Map<String,Double>> = mutableMapOf<String,Map<String,Double>>(
+            "Hacıosman" to mutableMapOf("Levent" to 9.2, "Koç Batı" to 8.4, "Beşiktaş" to 14.6,
+                    "Kadıköy" to 23.6 ),
+            "Levent" to mutableMapOf("Hacıosman" to 9.2, "Koç Batı" to 17.4, "Beşiktaş" to 5.2,
+                    "Kadıköy" to 14.5 ),
+            "Koç Batı" to mutableMapOf("Hacıosman" to 8.4, "Levent" to 17.4, "Beşiktaş" to 23.7,
+                    "Kadıköy" to 31.9 ),
+            "Beşiktaş" to mutableMapOf("Hacıosman" to 14.6, "Levent" to 5.2, "Kadıköy" to 14.5,"Koç Batı" to 23.7),
+            "Kadıköy" to mutableMapOf("Hacıosman" to 23.6, "Levent" to 14.5, "Beşiktaş" to 14.5,
+                    "Koç Batı" to 31.9 )
+    )
+    fun getAllAvailableTrips(hitchhikerTripCheck: HitchhikerTripCheckRequest): List<TripResponse> {
         val now = LocalDateTime.now().toInstant(ZoneOffset.UTC)
+        val user = userService.getUserByUsername(hitchhikerTripCheck.hitchhikerUserName)
+        var requestedOnes = tripRequestRepository.findAllByPersonRequested(user)
         return tripRepository.findAllByEndTimeGreaterThanAndAvailableSeatNumberGreaterThan(now).map { trip ->
-            TripResponse(
-                    from = trip.fromWhere,
-                    to = trip.toWhere,
-                    startTime = trip.startTime,
-                    endTime = trip.endTime,
-                    availableSeatNumber = trip.availableSeatNumber,
-                    id = trip.id
-            )
-        }.toList()
+
+            if(requestedOnes.find { it.trip == trip } == null ){
+                TripResponse(
+                        from = trip.fromWhere,
+                        to = trip.toWhere,
+                        startTime = trip.startTime,
+                        endTime = trip.endTime,
+                        availableSeatNumber = trip.availableSeatNumber,
+                        distance = trip.distance,
+                        id = trip.id,
+                        driverUserName = trip.driverName!!.username,
+                        carModel = trip.driverName!!.carModel
+                )
+            }
+            else null
+        }.filterNotNull().toList()
     }
 
     fun getFromAndToList(): TripFromToResponse {
         return TripFromToResponse(
+                fromToLocationList = locationList
         )
     }
 
@@ -53,9 +75,6 @@ class TripService @Autowired constructor(
         return CarModelResponse(
         )
     }
-
-
-
 
 
 
@@ -190,6 +209,8 @@ class TripService @Autowired constructor(
         trip.startTime=createTripRequest.startTime
         trip.fromWhere=createTripRequest.from
         trip.toWhere=createTripRequest.to
+        trip.distance=distanceMap.getOrDefault(trip.fromWhere,distanceMap.get("Hacıosman"))
+                ?.getOrDefault(trip.toWhere,0.0) ?: 0.0
         trip.driverName = userService.getUserByUsername(createTripRequest.driverUserName!!)
         tripRepository.save(trip)
     }
@@ -276,7 +297,8 @@ class TripService @Autowired constructor(
                             endTime = it.tripRequestId!!.trip!!.endTime,
                             id=it.id,
                             driverUserName = it.tripRequestId!!.trip!!.driverName!!.username,
-                            rating = it.tripRequestId!!.trip!!.driverName!!.point
+                            rating = it.tripRequestId!!.trip!!.driverName!!.point,
+                            carModel = it.tripRequestId!!.trip!!.driverName!!.carModel
 
 
                     )
@@ -289,7 +311,8 @@ class TripService @Autowired constructor(
                             endTime = it.tripRequestId!!.trip!!.endTime,
                             id=it.id,
                             driverUserName = it.tripRequestId!!.trip!!.driverName!!.username,
-                            rating = it.tripRequestId!!.trip!!.driverName!!.point
+                            rating = it.tripRequestId!!.trip!!.driverName!!.point,
+                            carModel = it.tripRequestId!!.trip!!.driverName!!.carModel
                     )
                 }.toList(),
                 tripExist = !tripVote.isEmpty()
@@ -303,13 +326,13 @@ class TripService @Autowired constructor(
             tripVote.voteGivenByDriver = tripPointRequest.point
             tripVoteRepository.save(tripVote)
             val hitchHiker = tripVote.tripRequestId!!.personRequested!!.username
-            userService.reviewUser(hitchHiker!!,tripPointRequest.point)
+            userService.reviewUser(hitchHiker!!,tripPointRequest.point,tripVote.tripRequestId?.trip?.distance ?: 0.0)
         }
         else{
             tripVote.voteGivenByHitchhiker = tripPointRequest.point
             tripVoteRepository.save(tripVote)
             val driver = tripVote.tripRequestId!!.trip!!.driverName!!.username
-            userService.reviewUser(driver!!, tripPointRequest.point)
+            userService.reviewUser(driver!!, tripPointRequest.point,tripVote.tripRequestId?.trip?.distance ?: 0.0)
         }
 
 

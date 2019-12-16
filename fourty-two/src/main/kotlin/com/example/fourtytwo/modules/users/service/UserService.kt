@@ -88,7 +88,7 @@ class UserService @Autowired constructor(
 
 
     @Transactional
-    fun reviewUser(username: String, point: Int) {
+    fun reviewUser(username: String, point: Int,distance :Double) {
         if(!existsByUsername(username)){
             throw RestException(
                     "Exception.notFound",
@@ -101,6 +101,7 @@ class UserService @Autowired constructor(
             var user = getUserByUsername(username)
             user.point=(user.point*user.numberRevieved+point)/(user.numberRevieved+1)
             user.numberRevieved=user.numberRevieved+1
+            user.totalDistance=user.totalDistance+distance
             userRepository.save(user)
         }
     }

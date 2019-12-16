@@ -8,6 +8,8 @@ data class TripResponse(
 
         var to: String? = null,
 
+        var distance : Double = 0.0,
+
         var startTime: Instant? = null,
 
         var endTime: Instant? = null,
