@@ -8,7 +8,7 @@ data class TripResponse(
 
         var to: String? = null,
 
-        var distance : Double = 0.0,
+        var distance: Double = 0.0,
 
         var startTime: Instant? = null,
 
@@ -22,5 +22,6 @@ data class TripResponse(
 
         var carModel: String? = null,
 
-        var rating: Double = 0.0
+        var rating: Double = 0.0,
+        var image: String?
 )

@@ -16,5 +16,7 @@ data class DriverComingTripResponse(
 
         var hitchHikerUserName: String? = null,
 
-        var rating: Double = 0.0
+        var rating: Double = 0.0,
+        var image: String?,
+        val voteGiven: Int?
 )

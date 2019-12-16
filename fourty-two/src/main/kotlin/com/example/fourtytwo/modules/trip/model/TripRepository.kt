@@ -8,7 +8,7 @@ interface TripRepository : JpaRepository<Trip, Long> {
 
   fun findAllByEndTimeGreaterThanAndAvailableSeatNumberGreaterThan(endTime:Instant,availableSeat:Int = 0): List<Trip>
 
-  fun findFirstByDriverNameOrderByEndTimeDesc(driverName:User): Trip?
+  fun findFirstByEndTimeGreaterThanAndDriverNameOrderByEndTimeDesc(driverName:User,endTime: Instant): Trip?
 
   fun existsTripByDriverNameAndEndTimeGreaterThanEqual(driverName:User,endTime: Instant): Boolean
 

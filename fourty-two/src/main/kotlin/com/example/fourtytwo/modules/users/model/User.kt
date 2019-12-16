@@ -70,6 +70,8 @@ class User : Serializable {
 
     var totalDistance: Double=0.0
 
+    var image: String? = null
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")

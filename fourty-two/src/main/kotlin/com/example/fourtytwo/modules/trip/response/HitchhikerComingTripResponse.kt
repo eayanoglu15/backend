@@ -21,5 +21,7 @@ data class HitchhikerComingTripResponse(
 
         var carModel: String? = null,
 
-        var showable: Boolean = true
+        var showable: Boolean = true,
+        var image: String?,
+        val voteGiven: Int?
 )
