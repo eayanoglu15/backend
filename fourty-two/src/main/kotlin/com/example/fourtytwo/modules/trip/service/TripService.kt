@@ -81,7 +81,7 @@ class TripService @Autowired constructor(
     fun getDriversAllRequests(driverTripCheckRequest: DriverTripCheckRequest): DriverRequestsPageResponse {
         val now = LocalDateTime.now().toInstant(ZoneOffset.UTC)
         val driver = userService.getUserByUsername(driverTripCheckRequest.driverUserName)
-        var trip = tripRepository.findFirstByEndTimeGreaterThanAndDriverNameOrderByEndTimeDesc(driver, now)
+        var trip = tripRepository.findFirstByEndTimeGreaterThanAndDriverNameOrderByEndTimeDesc(now,driver)
         if (trip == null) {
             return DriverRequestsPageResponse(
                     tripExist = false
