@@ -344,19 +344,28 @@ class TripService @Autowired constructor(
 
     @Transactional
     fun requestJoinTrip(requestJoinTripRequest: SendRequestRequest) {
-        val trip = tripRepository.findById(requestJoinTripRequest.tripId!!)
-        val hitchHiker: User = userService.getUserByUsername(requestJoinTripRequest.hitchHikerUserName!!)
-
-        var tripRequest = TripRequest()
-        tripRequest.personRequested = hitchHiker
-        tripRequest.trip = trip.map { it }.orElseThrow {
+        val trip:Trip = tripRepository.findById(requestJoinTripRequest.tripId!!).map { it }.orElseThrow {
             RestException(
-                    "Exception.notFound",
+                    "Exception.NoTripFound!",
                     HttpStatus.UNAUTHORIZED,
                     "User",
                     requestJoinTripRequest.tripId!!
             )
         }
+        val hitchHiker: User = userService.getUserByUsername(requestJoinTripRequest.hitchHikerUserName!!)
+
+        var tripRequest = TripRequest()
+
+        if (trip!!.availableSeatNumber == 0) {
+            throw RestException(
+                    "Exception.NoSeatsAvailable!",
+                    HttpStatus.UNAUTHORIZED,
+                    "User",
+                    trip.id!!
+            )
+        }
+        tripRequest.personRequested = hitchHiker
+        tripRequest.trip = trip
         tripRequestRepository.save(tripRequest)
     }
 
