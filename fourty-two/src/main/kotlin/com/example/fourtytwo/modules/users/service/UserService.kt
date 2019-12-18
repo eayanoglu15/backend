@@ -82,7 +82,7 @@ class UserService @Autowired constructor(
                 oldUser.plaque = user.plaque
             }
 
-            return userRepository.save(user)
+            return userRepository.save(oldUser)
         }
     }
 

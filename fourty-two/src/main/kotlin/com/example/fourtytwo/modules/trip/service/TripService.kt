@@ -287,7 +287,7 @@ class TripService @Autowired constructor(
                             voteGiven=it.voteGivenByHitchhiker
                     )
                 }.toList(),
-                nonVotedTrip = tripVote.filter { it.voteGivenByDriver == null }.map {
+                nonVotedTrip = tripVote.filter { it.voteGivenByHitchhiker == null }.map {
                     HitchhikerComingTripResponse(
                             from = it.tripRequestId!!.trip!!.fromWhere,
                             to = it.tripRequestId!!.trip!!.toWhere,
